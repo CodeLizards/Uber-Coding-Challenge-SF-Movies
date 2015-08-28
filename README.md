@@ -5,9 +5,9 @@ A simple web app to display where movies have been filmed in SF, filtered by use
 
 <p>I chose to do the SF Movies Project. The goal was to create a web app that shows a map where movies have been filmed in San Francisco where the user should be able to filter the view using an autocompletion search. 
 Data Source: https://data.sfgov.org/Culture-and-Recreation/Film-Locations-in-San-Francisco/yitu-d5am;</p>
-<li><Hosted:http://elizabethharris.pythonanywhere.com/index/
-</li>
-<li>Github: https://github.com/CodeLizards/Uber-Coding-Challenge-SF-Movies</li>
+
+<li>Hosted: http://elizabethharris.pythonanywhere.com/index</li>
+<li>Github:  https://github.com/CodeLizards/Uber-Coding-Challenge-SF-Movies</li>
 
 
 <h1>Technical Track</h1>

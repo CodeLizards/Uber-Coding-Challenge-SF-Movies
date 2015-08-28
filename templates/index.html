@@ -1,0 +1,132 @@
+<!-- The google maps, markers and fusion layers code was adapted from these sources: https://developers.google.com/maps/documentation/javascript/tutorial
+		https://developers.google.com/maps/documentation/javascript/examples/infowindow-simple
+		https://developers.google.com/maps/documentation/javascript/examples/layer-fusiontables-simple
+		https://developers.google.com/maps/documentation/javascript/examples/map-simple
+		https://developers.google.com/maps/articles/toomanymarkers?hl=en -->
+
+<!-- Simple html file which uses javascript and template language and the google maps api to display films at the user's request on a map-->
+<!DOCTYPE html>
+<html>
+  <head>
+    <style type="text/css">
+      html, body { height: 100%; font: 14px Arial;}
+      #map { height: 100%; margin-top: 10px; margin-right: 25px; margin-left: 25px; margin-bottom: 25px; }
+    </style>
+  </head>
+  <h2><center>And....Action!</center></h2>
+  <p><center>Always wondered where Gozilla was filmed in SF? Or if Ant-Man walked by your apartment? Welcome to the site where you can find out! </center></p>
+  
+  <body> 
+  	<!-- Search form -->
+    <center>
+    <form action="/search/" method="get">
+        <input type="text" name="q">
+        <input type="submit" value="Search">
+    </form>
+
+Dont know what to search? Check out the full list of movies filmed in SF below.
+  <!-- drop down menu -->
+  <form method="POST">
+    <select name="post_q">
+      <!-- displaying all unique titles in dropdown menu -->
+      {% for film in all_unique %}
+        <option>{{ film.title }}</option>
+      {% endfor %}
+    </select>
+  </form>
+
+  <!-- button to view all locations on map-->
+  <button type="button" value="View All" id="viewAll" style="font:bold 14px Arial">View All</button>
+</center>
+<div id="map"></div> 
+  
+
+  
+
+  <script type="text/javascript">
+  //variable declaration
+  var map;
+  var marker;
+  var lats;
+  var longs;
+  var title;
+  var locations; 
+  var info;
+  var markers = [];
+
+  //Draw map
+  //loop through list of films passed from views.py from database
+  //
+  function initMap() {
+     map = new google.maps.Map(document.getElementById('map'),{
+       center: {lat: 37.773972, lng: -122.431297},
+       zoom: 12
+     });
+     //only one infowindow needed, thus declare outside loop
+     info = new google.maps.InfoWindow;
+
+
+     {% if films %}
+        {% for film in films %}
+
+  	       lats = parseFloat('{{film.latitude}}');
+  	       longs = parseFloat('{{film.longitude}}');
+           title = '{{film.title}}';
+           locations = '{{film.location}}';
+           content = title +' was filmed at '+ locations;
+  	       putMarker(lats, longs, title, locations, content);
+
+        {% endfor %}
+     {% endif %}
+  }
+  
+  //function to place markers on map at lats, longs values
+  //set infoWindow to content and attact to current marker 
+  //when the user clicks
+  //store marker in array for later manipulation(deletes, etc)
+  function putMarker(lats, longs, title, content){
+   	 marker = new google.maps.Marker({
+        position: {lat: lats, lng: longs},
+        map: map,
+        title: title
+     });
+
+     marker.addListener('click', function() {
+        info.setContent(content)
+        info.open(map, this);
+     });
+     markers.push(marker);
+     marker.setMap(map);
+  }
+  
+  //function to erase all markers currently on th map
+  function eraseMarkers(){
+     for(var i = 0; i < markers.length; i++){
+        markers[i].setMap(null)
+     }
+  }
+  
+ //View all button to get all places shown through fusionTablesLayer
+ //Fusion table can be found at https://www.google.com/fusiontables/data?docid=1zJbEau5zl5qczDy3kYXKUXmfCWLktTd6pDgbOTaa#map:id=3
+  document.getElementById('viewAll').onclick = function() {viewAll()};
+
+  function viewAll(){
+     var layer = new google.maps.FusionTablesLayer({
+        query: {
+        select: '\'Locations\'',
+        from: '1zJbEau5zl5qczDy3kYXKUXmfCWLktTd6pDgbOTaa'
+     }
+  });
+  // layer of all the data points onto map
+  //delete markers from previous search
+  layer.setMap(map);
+  eraseMarkers();
+  }
+
+
+    </script>
+    <script async defer
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCNTh9TNfs5gRJqdEZXS3TU3rch26INGts&callback=initMap">
+    </script>
+  </body>
+</html>

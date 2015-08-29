@@ -1,8 +1,8 @@
 <!-- The google maps, markers and fusion layers code was adapted from these sources: https://developers.google.com/maps/documentation/javascript/tutorial
-		https://developers.google.com/maps/documentation/javascript/examples/infowindow-simple
-		https://developers.google.com/maps/documentation/javascript/examples/layer-fusiontables-simple
-		https://developers.google.com/maps/documentation/javascript/examples/map-simple
-		https://developers.google.com/maps/articles/toomanymarkers?hl=en -->
+    https://developers.google.com/maps/documentation/javascript/examples/infowindow-simple
+    https://developers.google.com/maps/documentation/javascript/examples/layer-fusiontables-simple
+    https://developers.google.com/maps/documentation/javascript/examples/map-simple
+    https://developers.google.com/maps/articles/toomanymarkers?hl=en -->
 
 <!-- Simple html file which uses javascript and template language and the google maps api to display films at the user's request on a map-->
 <!DOCTYPE html>
@@ -11,37 +11,41 @@
     <style type="text/css">
       html, body { height: 100%; font: 14px Arial;}
       #map { height: 100%; margin-top: 10px; margin-right: 25px; margin-left: 25px; margin-bottom: 25px; }
+      .moviesearch { margin-left: auto; margin-right: auto; line-height: 2; display: block; text-align: center;}
     </style>
   </head>
   <h2><center>And....Action!</center></h2>
   <p><center>Always wondered where Gozilla was filmed in SF? Or if Ant-Man walked by your apartment? Welcome to the site where you can find out! </center></p>
-  
-  <body> 
-  	<!-- Search form -->
-    <center>
-    <form action="/search/" method="get">
-        <input type="text" name="q">
+
+  <body>
+    <!-- Search form -->
+ <div class="moviesearch">
+        <form action="/search/" method="get">
+            <input type="text" name="q" value="Type in a Movie...">
+            <input type="submit" value="Search">
+        </form>
+
+    Dont know what to search? Check out the full list of movies filmed in SF below.
+      <!-- drop down menu -->
+        <form action="/search/" method="GET">
+        <select name="post_q">
+          <!-- displaying all unique titles in dropdown menu -->
+          {% for film in all_unique %}
+            <option>{{ film.title }}</option>
+          {% endfor %}
+        </select>
         <input type="submit" value="Search">
-    </form>
+      </form>
 
-Dont know what to search? Check out the full list of movies filmed in SF below.
-  <!-- drop down menu -->
-  <form method="POST">
-    <select name="post_q">
-      <!-- displaying all unique titles in dropdown menu -->
-      {% for film in all_unique %}
-        <option>{{ film.title }}</option>
-      {% endfor %}
-    </select>
-  </form>
 
-  <!-- button to view all locations on map-->
-  <button type="button" value="View All" id="viewAll" style="font:bold 14px Arial">View All</button>
-</center>
-<div id="map"></div> 
-  
+      <!-- button to view all locations on map-->
+      <button type="button" value="View All" id="viewAll" style="font:bold 14px Arial">View All</button>
+</div>
 
-  
+<div id="map"></div>
+
+
+
 
   <script type="text/javascript">
   //variable declaration
@@ -50,7 +54,7 @@ Dont know what to search? Check out the full list of movies filmed in SF below.
   var lats;
   var longs;
   var title;
-  var locations; 
+  var locations;
   var info;
   var markers = [];
 
@@ -69,23 +73,25 @@ Dont know what to search? Check out the full list of movies filmed in SF below.
      {% if films %}
         {% for film in films %}
 
-  	       lats = parseFloat('{{film.latitude}}');
-  	       longs = parseFloat('{{film.longitude}}');
+           lats = parseFloat('{{film.latitude}}');
+           longs = parseFloat('{{film.longitude}}');
            title = '{{film.title}}';
            locations = '{{film.location}}';
            content = title +' was filmed at '+ locations;
-  	       putMarker(lats, longs, title, locations, content);
+           putMarker(lats, longs, title, locations, content);
 
         {% endfor %}
+     {% elif no_result %}
+        alert('{{no_result}}')
      {% endif %}
   }
-  
+
   //function to place markers on map at lats, longs values
-  //set infoWindow to content and attact to current marker 
+  //set infoWindow to content and attact to current marker
   //when the user clicks
   //store marker in array for later manipulation(deletes, etc)
   function putMarker(lats, longs, title, content){
-   	 marker = new google.maps.Marker({
+     marker = new google.maps.Marker({
         position: {lat: lats, lng: longs},
         map: map,
         title: title
@@ -98,14 +104,14 @@ Dont know what to search? Check out the full list of movies filmed in SF below.
      markers.push(marker);
      marker.setMap(map);
   }
-  
+
   //function to erase all markers currently on th map
   function eraseMarkers(){
      for(var i = 0; i < markers.length; i++){
         markers[i].setMap(null)
      }
   }
-  
+
  //View all button to get all places shown through fusionTablesLayer
  //Fusion table can be found at https://www.google.com/fusiontables/data?docid=1zJbEau5zl5qczDy3kYXKUXmfCWLktTd6pDgbOTaa#map:id=3
   document.getElementById('viewAll').onclick = function() {viewAll()};
